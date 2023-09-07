@@ -98,7 +98,26 @@ class ClientController extends Controller
      */
     public function update(Request $request, Client $client)
     {
-        //
+        $data   = [];
+        $status = 200;
+
+        try {
+            // Validación exitosa
+            $validated = $this->validarDatosDeEntrada($request->all());
+
+            $client->update($validated);
+
+            $data = [
+                'message' => 'Cliente actualizado exitosamente',
+                'client'  => $client
+            ];
+        }
+        catch (\Exception $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = 400;
+        }
+
+        return response()->json($data, $status);
     }
 
     /**
