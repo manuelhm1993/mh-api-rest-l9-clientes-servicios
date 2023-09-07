@@ -50,8 +50,13 @@ class ClientController extends Controller
         $status = 200;
 
         try {
-            // Validación exitosa
+            // Validación de datos de entrada
             $validated = $this->validarDatosDeEntrada($request->all());
+
+            // Si el campo status existe, significa que la validación falló
+            if($validated['status']) {
+                return response()->json(['errors' => $validated['data']], $validated['status']);
+            }
 
             $client = Client::create($validated);
             $data = [
@@ -102,8 +107,13 @@ class ClientController extends Controller
         $status = 200;
 
         try {
-            // Validación exitosa
+            // Validación de datos de entrada
             $validated = $this->validarDatosDeEntrada($request->all());
+
+            // Si el campo status existe, significa que la validación falló
+            if($validated['status']) {
+                return response()->json(['errors' => $validated['data']], $validated['status']);
+            }
 
             $client->update($validated);
 
@@ -153,10 +163,11 @@ class ClientController extends Controller
         $validator = Validator::make($incomingData, self::RULES);
 
         if ($validator->fails()) {
-            $data = $validator->errors();
+            // Devuelve un array con todos los errores
+            $data = $validator->errors()->all();
             $status = 400;
 
-            return response()->json($data, $status);
+            return compact('data', 'status');
         }
 
         return $validator->validated();
