@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -78,13 +79,19 @@ class ClientController extends Controller
      * @param  \App\Models\Client  $client
      * @return \Illuminate\Http\Response
      */
-    public function show(Client $client)
+    public function show($id)
     {
         $data   = [];
         $status = 200;
 
         try {
+            // Buscar el cliente con el id recibido, si no existe lanza una excepción
+            $client = Client::findOrFail($id);
             $data = ['client'  => $client];
+        }
+        catch (ModelNotFoundException $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = 404;
         }
         catch (\Exception $e) {
             $data = ['error' => $e->getMessage()];
@@ -136,18 +143,24 @@ class ClientController extends Controller
      * @param  \App\Models\Client  $client
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Client $client)
+    public function destroy($id)
     {
         $data   = [];
         $status = 200;
 
         try {
+            // Buscar el cliente con el id recibido, si no existe lanza una excepción
+            $client = Client::findOrFail($id);
             $client->delete();
 
             $data = [
                 'message' => 'Cliente eliminado exitosamente',
                 'client'  => $client
             ];
+        }
+        catch (ModelNotFoundException $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = 404;
         }
         catch (\Exception $e) {
             $data = ['error' => $e->getMessage()];
