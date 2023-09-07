@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::create('client_service', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('client_id')->constrained();
+            $table->foreignId('service_id')->constrained();
             $table->timestamps();
         });
     }
