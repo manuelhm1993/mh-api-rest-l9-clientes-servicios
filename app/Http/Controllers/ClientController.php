@@ -55,7 +55,7 @@ class ClientController extends Controller
             $validated = $this->validarDatosDeEntrada($request->all());
 
             // Si el campo status existe, significa que la validación falló
-            if($validated['status']) {
+            if(isset($validated['status'])) {
                 return response()->json(['errors' => $validated['data']], $validated['status']);
             }
 
@@ -118,7 +118,7 @@ class ClientController extends Controller
             $validated = $this->validarDatosDeEntrada($request->all());
 
             // Si el campo status existe, significa que la validación falló
-            if($validated['status']) {
+            if(isset($validated['status'])) {
                 return response()->json(['errors' => $validated['data']], $validated['status']);
             }
 
