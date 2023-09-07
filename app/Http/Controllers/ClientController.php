@@ -6,6 +6,7 @@ use App\Models\Client;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class ClientController extends Controller
 {
@@ -115,7 +116,7 @@ class ClientController extends Controller
 
         try {
             // Validación de datos de entrada
-            $validated = $this->validarDatosDeEntrada($request->all());
+            $validated = $this->validarDatosDeEntrada($request->all(), $this->getRules($client->id));
 
             // Si el campo status existe, significa que la validación falló
             if(isset($validated['status'])) {
@@ -171,9 +172,9 @@ class ClientController extends Controller
     }
 
     // Valida los campos de entrada y retorna un array con los datos validados o una respuesta de error
-    private function validarDatosDeEntrada(array $incomingData) {
+    private function validarDatosDeEntrada(array $incomingData, array $customRules = null) {
         // Las constantes de clase automáticamente son propiedades static
-        $validator = Validator::make($incomingData, self::RULES);
+        $validator = Validator::make($incomingData, (is_null($customRules)) ? self::RULES : $customRules);
 
         if ($validator->fails()) {
             // Devuelve un array con todos los errores
@@ -184,5 +185,17 @@ class ClientController extends Controller
         }
 
         return $validator->validated();
+    }
+
+    // Si el cliente está actualizando datos, ignora el email para no crear conflicto con el id unique
+    private function getRules($id) {
+        $rules = [
+            'name'    => 'required|string|max:255',
+            'email'   => ['required', 'string', Rule::unique('clients')->ignore($id), 'max:255'],
+            'phone'   => 'nullable|string',
+            'address' => 'nullable|string', // Permite que el campo sea nulo
+        ];
+
+        return $rules;
     }
 }
