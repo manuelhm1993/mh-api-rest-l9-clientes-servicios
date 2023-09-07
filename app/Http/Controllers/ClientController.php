@@ -109,12 +109,13 @@ class ClientController extends Controller
      * @param  \App\Models\Client  $client
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Client $client)
+    public function update(Request $request, $id)
     {
         $data   = [];
         $status = 200;
 
         try {
+            $client = Client::findOrFail($id);
             // Validación de datos de entrada
             $validated = $this->validarDatosDeEntrada($request->all(), $this->getRules($client->id));
 
@@ -129,6 +130,10 @@ class ClientController extends Controller
                 'message' => 'Cliente actualizado exitosamente',
                 'client'  => $client
             ];
+        }
+        catch (ModelNotFoundException $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = 404;
         }
         catch (\Exception $e) {
             $data = ['error' => $e->getMessage()];

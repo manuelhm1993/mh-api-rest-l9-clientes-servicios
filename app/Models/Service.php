@@ -10,6 +10,17 @@ class Service extends Model
     use HasFactory;
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'description',
+        'price',
+    ];
+
+    /**
      * The clients that belong to the service.
      */
     public function clients()
