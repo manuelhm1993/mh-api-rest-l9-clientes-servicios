@@ -8,6 +8,14 @@ use Illuminate\Support\Facades\Validator;
 
 class ClientController extends Controller
 {
+    // Reglas de validación de datos de entrada, para declarar una constante se usa const NOMBRE sin '$'
+    private const RULES = [
+        'name'    => 'required|string|max:255',
+        'email'   => 'required|string|email|unique:clients|max:255',
+        'phone'   => 'nullable|string',
+        'address' => 'nullable|string', // Permite que el campo sea nulo
+    ];
+
     /**
      * Display a listing of the resource.
      *
@@ -42,22 +50,8 @@ class ClientController extends Controller
         $status = 200;
 
         try {
-            $validator = Validator::make($request->all(), [
-                'name'    => 'required|string|max:255',
-                'email'   => 'required|string|email|unique:clients|max:255',
-                'phone'   => 'nullable|string',
-                'address' => 'nullable|string', // Permite que el campo sea nulo
-            ]);
-
-            if ($validator->fails()) {
-                $data = $validator->errors();
-                $status = 400;
-
-                return response()->json($data, $status);
-            }
-
             // Validación exitosa
-            $validated = $validator->validated();
+            $validated = $this->validarDatosDeEntrada($request->all());
 
             $client = Client::create($validated);
             $data = [
@@ -81,7 +75,18 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
-        //
+        $data   = [];
+        $status = 200;
+
+        try {
+            $data = ['client'  => $client];
+        }
+        catch (\Exception $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = 400;
+        }
+
+        return response()->json($data, $status);
     }
 
     /**
@@ -105,5 +110,20 @@ class ClientController extends Controller
     public function destroy(Client $client)
     {
         //
+    }
+
+    // Valida los campos de entrada y retorna un array con los datos validados o una respuesta de error
+    private function validarDatosDeEntrada(array $incomingData) {
+        // Las constantes de clase automáticamente son propiedades static
+        $validator = Validator::make($incomingData, self::RULES);
+
+        if ($validator->fails()) {
+            $data = $validator->errors();
+            $status = 400;
+
+            return response()->json($data, $status);
+        }
+
+        return $validator->validated();
     }
 }

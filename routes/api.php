@@ -20,4 +20,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Rutas para clientes y servicios
-Route::apiResource('clients', ClientController::class)->only(['index', 'store']);
+Route::apiResource('clients', ClientController::class);
