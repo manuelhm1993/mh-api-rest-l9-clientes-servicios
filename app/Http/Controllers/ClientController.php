@@ -14,17 +14,19 @@ class ClientController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $data   = [];
+        $status = 200;
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        try {
+            $clients = Client::all();
+            $data = ['clients' => $clients];
+        }
+        catch (\Exception $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = 400;
+        }
+
+        return response()->json($data, $status);
     }
 
     /**
@@ -45,17 +47,6 @@ class ClientController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Client $client)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Client  $client
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Client $client)
     {
         //
     }
