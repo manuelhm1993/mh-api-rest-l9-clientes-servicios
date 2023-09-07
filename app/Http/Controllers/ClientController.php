@@ -128,7 +128,23 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
-        //
+        $data   = [];
+        $status = 200;
+
+        try {
+            $client->delete();
+
+            $data = [
+                'message' => 'Cliente eliminado exitosamente',
+                'client'  => $client
+            ];
+        }
+        catch (\Exception $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = 400;
+        }
+
+        return response()->json($data, $status);
     }
 
     // Valida los campos de entrada y retorna un array con los datos validados o una respuesta de error
