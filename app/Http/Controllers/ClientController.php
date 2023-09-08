@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\MH\Classes\Helper;
 use App\Models\Client;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -10,14 +11,6 @@ use Illuminate\Validation\Rule;
 
 class ClientController extends Controller
 {
-    // Reglas de validación de datos de entrada, para declarar una constante se usa const NOMBRE sin '$'
-    private const RULES = [
-        'name'    => 'required|string|max:255',
-        'email'   => 'required|string|email|unique:clients|max:255',
-        'phone'   => 'nullable|string',
-        'address' => 'nullable|string', // Permite que el campo sea nulo
-    ];
-
     /**
      * Display a listing of the resource.
      *
@@ -53,7 +46,7 @@ class ClientController extends Controller
 
         try {
             // Validación de datos de entrada
-            $validated = $this->validarDatosDeEntrada($request->all());
+            $validated = $this->validarDatosDeEntrada($request->all(), 'client');
 
             // Si el campo status existe, significa que la validación falló
             if(isset($validated['status'])) {
@@ -117,7 +110,7 @@ class ClientController extends Controller
         try {
             $client = Client::findOrFail($id);
             // Validación de datos de entrada
-            $validated = $this->validarDatosDeEntrada($request->all(), $this->getRules($client->id));
+            $validated = $this->validarDatosDeEntrada($request->all(), 'client', true, $client->id);
 
             // Si el campo status existe, significa que la validación falló
             if(isset($validated['status'])) {
@@ -177,9 +170,9 @@ class ClientController extends Controller
     }
 
     // Valida los campos de entrada y retorna un array con los datos validados o una respuesta de error
-    private function validarDatosDeEntrada(array $incomingData, array $customRules = null) {
+    private function validarDatosDeEntrada(array $incomingData, string $class, bool $email = false, $id = null) {
         // Las constantes de clase automáticamente son propiedades static
-        $validator = Validator::make($incomingData, (is_null($customRules)) ? self::RULES : $customRules);
+        $validator = Validator::make($incomingData, Helper::getRules($class, $email, $id));
 
         if ($validator->fails()) {
             // Devuelve un array con todos los errores
@@ -190,17 +183,5 @@ class ClientController extends Controller
         }
 
         return $validator->validated();
-    }
-
-    // Si el cliente está actualizando datos, ignora el email para no crear conflicto con el id unique
-    private function getRules($id) {
-        $rules = [
-            'name'    => 'required|string|max:255',
-            'email'   => ['required', 'string', Rule::unique('clients')->ignore($id), 'max:255'],
-            'phone'   => 'nullable|string',
-            'address' => 'nullable|string', // Permite que el campo sea nulo
-        ];
-
-        return $rules;
     }
 }
