@@ -166,4 +166,33 @@ class ClientController extends Controller
 
         return response()->json($data, $status);
     }
+
+    // Método para que los clientes contraten servicios
+    public function attach(Request $request) {
+        $data   = [];
+        $status = 200;
+
+        try {
+            $client = Client::findOrFail($request->client_id);
+            $client->services()->attach($request->service_id);
+            $service = $client->services()->where('services.id', $request->service_id)->first();
+
+            $data = [
+                'message'  => 'Servicio agregado exitosamente',
+                'client'   => $client,
+                'service'  => $service,
+                'contract' => $service->pivot,
+            ];
+        }
+        catch (ModelNotFoundException $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = 404;
+        }
+        catch (\Exception $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = 400;
+        }
+
+        return response()->json($data, $status);
+    }
 }

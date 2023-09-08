@@ -25,3 +25,8 @@ Route::apiResources([
     'clients'  => ClientController::class,
     'services' => ServiceController::class,
 ]);
+
+// Rutas adicionales del ClientController
+Route::controller(ClientController::class)->prefix('clients')->name('clients.')->group(function () {
+    Route::post('/services', 'attach')->name('services.attach');
+});
