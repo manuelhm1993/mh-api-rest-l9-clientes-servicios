@@ -2,6 +2,7 @@
 
 namespace App\MH\Classes;
 
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class Helper {
@@ -25,7 +26,7 @@ class Helper {
     ];
 
     // Devuelve las reglas correspondientes al controlador solicitado y si tiene email lo ignora en una actualización
-    public static function getRules(string $class, bool $email = false, $id = null) {
+    private static function getRules(string $class, bool $email = false, $id = null) {
         if(($email) && !is_null($id)) {
             switch($class) {
                 case 'client':
@@ -35,5 +36,20 @@ class Helper {
         }
 
         return self::$rules[$class]['rules'];
+    }
+
+    // Valida los campos de entrada y retorna un array con los datos validados o una respuesta de error
+    public static function validarDatosDeEntrada(array $incomingData, string $class, bool $email = false, $id = null) {
+        $validator = Validator::make($incomingData, self::getRules($class, $email, $id));
+
+        if ($validator->fails()) {
+            // Devuelve un array con todos los errores
+            $data = $validator->errors()->all();
+            $status = 400;
+
+            return compact('data', 'status');
+        }
+
+        return $validator->validated();
     }
 }
