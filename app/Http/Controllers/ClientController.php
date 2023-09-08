@@ -167,6 +167,27 @@ class ClientController extends Controller
         return response()->json($data, $status);
     }
 
+    // Método para devolver los clientes con sus servicios contratados
+    public function indexCS() {
+        $data   = [];
+        $status = 200;
+
+        try {
+            // Devuelve todos los clientes con sus servicios (tengan o no contrataciones)
+            $clients = Client::with('services')->get();
+
+            // Devuelve todos los clientes que tengan servicios contratados
+            // $clients = Client::has('services')->with('services')->get();
+            $data = ['clients' => $clients];
+        }
+        catch (\Exception $e) {
+            $data = ['error' => $e->getMessage()];
+            $status = 400;
+        }
+
+        return response()->json($data, $status);
+    }
+
     // Método para que los clientes contraten servicios
     public function attach(Request $request) {
         $data   = [];

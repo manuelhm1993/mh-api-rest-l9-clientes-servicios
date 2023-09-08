@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientServiceController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -26,7 +27,8 @@ Route::apiResources([
     'services' => ServiceController::class,
 ]);
 
-// Rutas adicionales del ClientController
+// Rutas para trabajo de relaciones con clientes y servicios
 Route::controller(ClientController::class)->prefix('clients')->name('clients.')->group(function () {
+    Route::get('/services/contracts', 'indexCS')->name('services.index'); // Agregar contracts para evitar conflictos de nombres
     Route::post('/services', 'attach')->name('services.attach');
 });
