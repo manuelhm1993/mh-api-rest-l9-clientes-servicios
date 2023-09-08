@@ -29,6 +29,7 @@ Route::apiResources([
 
 // Rutas para trabajo de relaciones con clientes y servicios
 Route::controller(ClientController::class)->prefix('clients')->name('clients.')->group(function () {
-    Route::get('/services/contracts', 'indexCS')->name('services.index'); // Agregar contracts para evitar conflictos de nombres
-    Route::post('/services', 'attach')->name('services.attach');
+    Route::get('/services/contracts', 'contracts')->name('services.contracts'); // Cada ruta debe ser específica si se combina
+    Route::post('/services/attach', 'attach')->name('services.attach');
+    Route::post('/services/detach', 'detach')->name('services.detach');
 });
