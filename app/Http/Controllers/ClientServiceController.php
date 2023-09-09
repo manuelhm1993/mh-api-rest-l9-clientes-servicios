@@ -34,6 +34,7 @@ class ClientServiceController extends Controller
                 default:
                     $type  = 'Error';
                     $types = 'Se espera el parámetro type: clients || services';
+                    $status = 404;
                     break;
             }
 
@@ -52,6 +53,8 @@ class ClientServiceController extends Controller
         $data     = [];
         $status   = 200;
         $message  = '';
+        $client   = null;
+        $service  = null;
         $contract = null;
         $types    = null;
 
@@ -76,8 +79,9 @@ class ClientServiceController extends Controller
                     $contract = $client->pivot;
                     break;
                 default:
-                    $type  = 'Error';
-                    $types = 'Se espera el parámetro type: clients || services';
+                    $type   = 'Error';
+                    $types  = 'Se espera el parámetro type: clients || services';
+                    $status = 404;
                     break;
             }
 
@@ -105,21 +109,48 @@ class ClientServiceController extends Controller
         return response()->json($data, $status);
     }
 
-    /* // Método para que los clientes den de baja el contrato de servicios
-    public function detach(Request $request) {
-        $data   = [];
-        $status = 200;
+    // Método para que los clientes den de baja el contrato de servicios y a la inversa
+    public function detach(Request $request, string $type = null) {
+        $data     = [];
+        $status   = 200;
+        $client   = null;
+        $service  = null;
+        $message  = '';
+        $types    = null;
 
         try {
-            $client = Client::findOrFail($request->client_id);
-            $client->services()->detach($request->service_id);
-            $service = $client->services()->where('services.id', $request->service_id)->first();
+            switch($type) {
+                case 'clients':
+                    $client = Client::findOrFail($request->client_id);
+                    $client->services()->detach($request->service_id);
 
-            $data = [
-                'message'  => 'Servicio descontratado exitosamente',
-                'client'   => $client,
-                'service'  => $service,
-            ];
+                    $service  = $client->services()->where('services.id', $request->service_id)->first();
+                    $message  = 'Servicio descontratado exitosamente';
+                    break;
+                case 'services':
+                    $service = Service::findOrFail($request->service_id);
+                    $service->clients()->detach($request->client_id);
+
+                    $client = $service->clients()->where('clients.id', $request->client_id)->first();
+                    $message  = 'Cliente descontratado exitosamente';
+                    break;
+                default:
+                    $type   = 'Error';
+                    $types  = 'Se espera el parámetro type: clients || services';
+                    $status = 404;
+                    break;
+            }
+
+            if($type === 'Error') {
+                $data = [$type => $types];
+            }
+            else {
+                $data = [
+                    'message'  => $message,
+                    'client'   => $client,
+                    'service'  => $service,
+                ];
+            }
         }
         catch (ModelNotFoundException $e) {
             $data = ['error' => $e->getMessage()];
@@ -131,5 +162,5 @@ class ClientServiceController extends Controller
         }
 
         return response()->json($data, $status);
-    } */
+    }
 }
