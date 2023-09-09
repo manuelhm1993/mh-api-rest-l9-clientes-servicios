@@ -1,6 +1,6 @@
 # API REST MHenriquez - Clientes y Servicios 🌎
 
-Proyecto desarrollado en laravel 8 para aprender el desarrollo y consumo de una API REST con POSTMAN. Se usan las relaciones ORM de Eloquent para las funciones CRUD de clientes y servicios y la contratación de los mismos
+Proyecto desarrollado en laravel 9 para aprender el desarrollo y consumo de una API REST con POSTMAN. Se usan las relaciones ORM de Eloquent para las funciones CRUD de clientes y servicios y la contratación de los mismos
 
 ## GitHub Pages 📋📌: [N/A](https://github.com/manuelhm1993)
 
