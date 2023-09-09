@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Service;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class ClientServiceController extends Controller
@@ -46,22 +47,51 @@ class ClientServiceController extends Controller
         return response()->json($data, $status);
     }
 
-    /* // Método para que los clientes contraten servicios
-    public function attach(Request $request) {
-        $data   = [];
-        $status = 200;
+    // Método para que los clientes contraten servicios y agregar clientes a servicios
+    public function attach(Request $request, string $type = null) {
+        $data     = [];
+        $status   = 200;
+        $message  = '';
+        $contract = null;
+        $types    = null;
 
         try {
-            $client = Client::findOrFail($request->client_id);
-            $client->services()->attach($request->service_id);
-            $service = $client->services()->where('services.id', $request->service_id)->first();
+            switch($type) {
+                case 'clients':
+                    $client = Client::findOrFail($request->client_id);
+                    $client->services()->attach($request->service_id);
 
-            $data = [
-                'message'  => 'Servicio agregado exitosamente',
-                'client'   => $client,
-                'service'  => $service,
-                'contract' => $service->pivot,
-            ];
+                    $service = $client->services()->where('services.id', $request->service_id)->first();
+
+                    $message  = 'Servicio agregado exitosamente';
+                    $contract = $service->pivot;
+                    break;
+                case 'services':
+                    $service = Service::findOrFail($request->service_id);
+                    $service->clients()->attach($request->client_id);
+
+                    $client = $service->clients()->where('clients.id', $request->client_id)->first();
+
+                    $message  = 'Cliente agregado exitosamente';
+                    $contract = $client->pivot;
+                    break;
+                default:
+                    $type  = 'Error';
+                    $types = 'Se espera el parámetro type: clients || services';
+                    break;
+            }
+
+            if($type === 'Error') {
+                $data = [$type => $types];
+            }
+            else {
+                $data = [
+                    'message'  => $message,
+                    'client'   => $client,
+                    'service'  => $service,
+                    'contract' => $contract,
+                ];
+            }
         }
         catch (ModelNotFoundException $e) {
             $data = ['error' => $e->getMessage()];
@@ -75,7 +105,7 @@ class ClientServiceController extends Controller
         return response()->json($data, $status);
     }
 
-    // Método para que los clientes den de baja el contrato de servicios
+    /* // Método para que los clientes den de baja el contrato de servicios
     public function detach(Request $request) {
         $data   = [];
         $status = 200;
