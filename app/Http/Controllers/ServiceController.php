@@ -166,25 +166,4 @@ class ServiceController extends Controller
 
         return response()->json($data, $status);
     }
-
-    // Método para devolver los clientes con sus servicios contratados
-    public function contracts() {
-        $data   = [];
-        $status = 200;
-
-        try {
-            // Devuelve todos los clientes con sus servicios (tengan o no contrataciones)
-            $services = Service::with('clients')->get();
-
-            // Devuelve todos los clientes que tengan servicios contratados
-            // $services = Service::has('clients')->with('services')->get();
-            $data = ['services' => $services];
-        }
-        catch (\Exception $e) {
-            $data = ['error' => $e->getMessage()];
-            $status = 400;
-        }
-
-        return response()->json($data, $status);
-    }
 }

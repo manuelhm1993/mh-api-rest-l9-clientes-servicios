@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientServiceController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,12 +29,10 @@ Route::apiResources([
 
 // Rutas para trabajo de relaciones con clientes y servicios
 Route::controller(ClientController::class)->prefix('clients')->name('clients.')->group(function () {
-    Route::get('/services/contracts', 'contracts')->name('services.contracts'); // Cada ruta debe ser específica si se combina
     Route::post('/services/attach', 'attach')->name('services.attach');
     Route::post('/services/detach', 'detach')->name('services.detach');
 });
 
-// Rutas para trabajo de relaciones con servicios y clientes
-Route::controller(ServiceController::class)->prefix('services')->name('services.')->group(function () {
-    Route::get('/clients/contracts', 'contracts')->name('clients.contracts');
+Route::controller(ClientServiceController::class)->prefix('clients/services')->name('clients.services.')->group(function () {
+    Route::get('/contracts/{type?}', 'contracts')->name('contracts');
 });
